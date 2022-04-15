@@ -1,0 +1,94 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/usr/bin/node', '/usr/bin/npm', 'install', 'csv-parse' ]
+2 info using npm@3.5.2
+3 info using node@v8.10.0
+4 silly loadCurrentTree Starting
+5 silly install loadCurrentTree
+6 silly install readLocalPackageData
+7 silly fetchPackageMetaData csv-parse@^5.0.4
+8 silly fetchNamedPackageData csv-parse
+9 silly mapToRegistry name csv-parse
+10 silly mapToRegistry using default registry
+11 silly mapToRegistry registry https://registry.npmjs.org/
+12 silly mapToRegistry uri https://registry.npmjs.org/csv-parse
+13 verbose request uri https://registry.npmjs.org/csv-parse
+14 verbose request no auth needed
+15 info attempt registry request try #1 at 7:30:08 PM
+16 verbose request id aa7e523c0fb09283
+17 http request GET https://registry.npmjs.org/csv-parse
+18 http 200 https://registry.npmjs.org/csv-parse
+19 verbose headers { date: 'Fri, 15 Apr 2022 16:30:08 GMT',
+19 verbose headers   'content-type': 'application/json',
+19 verbose headers   'transfer-encoding': 'chunked',
+19 verbose headers   connection: 'keep-alive',
+19 verbose headers   'cf-ray': '6fc610645c976250-OTP',
+19 verbose headers   'access-control-allow-origin': '*',
+19 verbose headers   'cache-control': 'public, max-age=300',
+19 verbose headers   etag: 'W/"8b1e6b81b1bc2c3cd18e438603df2da5"',
+19 verbose headers   'last-modified': 'Wed, 29 Dec 2021 22:15:37 GMT',
+19 verbose headers   vary: 'accept-encoding, accept',
+19 verbose headers   'cf-cache-status': 'REVALIDATED',
+19 verbose headers   'expect-ct': 'max-age=604800, report-uri="https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct"',
+19 verbose headers   'x-amz-replication-status': 'COMPLETED',
+19 verbose headers   server: 'cloudflare',
+19 verbose headers   'content-encoding': 'gzip' }
+20 silly get cb [ 200,
+20 silly get   { date: 'Fri, 15 Apr 2022 16:30:08 GMT',
+20 silly get     'content-type': 'application/json',
+20 silly get     'transfer-encoding': 'chunked',
+20 silly get     connection: 'keep-alive',
+20 silly get     'cf-ray': '6fc610645c976250-OTP',
+20 silly get     'access-control-allow-origin': '*',
+20 silly get     'cache-control': 'public, max-age=300',
+20 silly get     etag: 'W/"8b1e6b81b1bc2c3cd18e438603df2da5"',
+20 silly get     'last-modified': 'Wed, 29 Dec 2021 22:15:37 GMT',
+20 silly get     vary: 'accept-encoding, accept',
+20 silly get     'cf-cache-status': 'REVALIDATED',
+20 silly get     'expect-ct': 'max-age=604800, report-uri="https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct"',
+20 silly get     'x-amz-replication-status': 'COMPLETED',
+20 silly get     server: 'cloudflare',
+20 silly get     'content-encoding': 'gzip' } ]
+21 verbose get saving csv-parse to /home/jul/.npm/registry.npmjs.org/csv-parse/.cache.json
+22 silly install normalizeTree
+23 silly loadCurrentTree Finishing
+24 silly loadIdealTree Starting
+25 silly install loadIdealTree
+26 silly cloneCurrentTree Starting
+27 silly install cloneCurrentTreeToIdealTree
+28 silly cloneCurrentTree Finishing
+29 silly loadShrinkwrap Starting
+30 silly install loadShrinkwrap
+31 silly loadShrinkwrap Finishing
+32 silly loadAllDepsIntoIdealTree Starting
+33 silly install loadAllDepsIntoIdealTree
+34 verbose stack Error: Missing required argument #1
+34 verbose stack     at andLogAndFinish (/usr/share/npm/lib/fetch-package-metadata.js:31:3)
+34 verbose stack     at fetchPackageMetadata (/usr/share/npm/lib/fetch-package-metadata.js:51:22)
+34 verbose stack     at resolveWithNewModule (/usr/share/npm/lib/install/deps.js:456:12)
+34 verbose stack     at /usr/share/npm/lib/install/deps.js:190:5
+34 verbose stack     at /usr/share/npm/node_modules/slide/lib/async-map.js:52:35
+34 verbose stack     at Array.forEach (<anonymous>)
+34 verbose stack     at /usr/share/npm/node_modules/slide/lib/async-map.js:52:11
+34 verbose stack     at Array.forEach (<anonymous>)
+34 verbose stack     at asyncMap (/usr/share/npm/node_modules/slide/lib/async-map.js:51:8)
+34 verbose stack     at exports.loadRequestedDeps (/usr/share/npm/lib/install/deps.js:188:3)
+35 verbose cwd /mnt/d/CodeCool2022
+36 error Linux 5.4.72-microsoft-standard-WSL2
+37 error argv "/usr/bin/node" "/usr/bin/npm" "install" "csv-parse"
+38 error node v8.10.0
+39 error npm  v3.5.2
+40 error code EMISSINGARG
+41 error typeerror Error: Missing required argument #1
+41 error typeerror     at andLogAndFinish (/usr/share/npm/lib/fetch-package-metadata.js:31:3)
+41 error typeerror     at fetchPackageMetadata (/usr/share/npm/lib/fetch-package-metadata.js:51:22)
+41 error typeerror     at resolveWithNewModule (/usr/share/npm/lib/install/deps.js:456:12)
+41 error typeerror     at /usr/share/npm/lib/install/deps.js:190:5
+41 error typeerror     at /usr/share/npm/node_modules/slide/lib/async-map.js:52:35
+41 error typeerror     at Array.forEach (<anonymous>)
+41 error typeerror     at /usr/share/npm/node_modules/slide/lib/async-map.js:52:11
+41 error typeerror     at Array.forEach (<anonymous>)
+41 error typeerror     at asyncMap (/usr/share/npm/node_modules/slide/lib/async-map.js:51:8)
+41 error typeerror     at exports.loadRequestedDeps (/usr/share/npm/lib/install/deps.js:188:3)
+42 error typeerror This is an error with npm itself. Please report this error at:
+42 error typeerror     <http://github.com/npm/npm/issues>
+43 verbose exit [ 1, true ]
