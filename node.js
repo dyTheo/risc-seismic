@@ -16,6 +16,7 @@ const Jimp = require('jimp');
 
 let results = [];
 let markers = [];
+let markers2 = [];
 let UPDATE_COORDS = false;
 let UPDATE_IMAGES = true;
 let totalRequest = 0;
@@ -127,7 +128,6 @@ function schedule(currentRequestCount)
     });
 }
 
-
 function readImages(intArray, x, y, dx, dy, func)
 {
     let aX = x + dx;
@@ -137,13 +137,9 @@ function readImages(intArray, x, y, dx, dy, func)
         return function (err, image) {
             for (let i = 0; i < image.getWidth(); i++)
             {
-                if (dx == -1)
-                {
-                    intArray.push([]);
-                }
                 for (let j = 0; j < image.getHeight(); j++)
                 {
-                    intArray[dx + 1].push([image.getPixelColor(j, i)]);
+                    intArray[dx * 512 + 512 + j][dy * 512 + 512 + i] = image.getPixelColor(j, i);
                 }
             }
             dx++;
@@ -165,6 +161,10 @@ function readImages(intArray, x, y, dx, dy, func)
 
 function generateMapsFor(currentRequestCount)
 {
+    if (currentRequestCount == 0)
+    {
+        markers2 = [];
+    }
     if (currentRequestCount == totalRequest)
     {
         console.log("done with updating polygons");
@@ -175,15 +175,42 @@ function generateMapsFor(currentRequestCount)
     let y = lat2tile(marker.lat, baseZ);
 
     let functionn = ((c)=>{return (ints)=>calcPolygon(ints, c)})(currentRequestCount);
-    readImages([], x, y, -1, -1, functionn);
+    let array = new Array(512 * 3);
+    for (let i = 0; i < 512 * 3; i++)
+    {
+        array[i] = new Array(512 * 3);
+    }
+    readImages(array, x, y, -1, -1, functionn);
 }
-
+//intArray[512][512], intArray[x][y]
 function calcPolygon(intArray, currentRequestCount)
 {
     // now perform Lee on that thing... yikes
     //... how do we figure where we were again?
-    let startX = lng2tilePixel(markers[currentRequestCount].lng);
-    let startY = lat2tilePixel(markers[currentRequestCount].lat);
+    let tileX = lng2tile(markers[currentRequestCount].lng, baseZ);
+    let tileY = lat2tile(markers[currentRequestCount].lat, baseZ);
+    let startX = lng2tilePixel(markers[currentRequestCount].lng, baseZ) + 512;
+    let startY = lat2tilePixel(markers[currentRequestCount].lat, baseZ) + 512;
+    let array = new Array(512 * 3);
+    for (let i = 0; i < 512 * 3; i++)
+    {
+        array[i] = new Array(512 * 3);
+    }
+    let first = 0;
+    let queue = [{x: startX, y: startY}];
+    let mapp = new Map();
+    while (queue.length != first)
+    {
+        let elem = queue[first];
+        first++;
+        if (intArray[elem.x][elem.y] != 3654339071)
+            continue;
+        markers2.push({lng:pixel2lng(elem.x - 512 + tileX * 512, baseZ),
+                       lat:pixel2lat(elem.y - 512 + tileY * 512, baseZ),
+                       val: markers[currentRequestCount].val});
+    }
+    if (currentRequestCount < 30)
+    generateMapsFor(currentRequestCount + 1);
 }
 
 
@@ -212,8 +239,8 @@ else if (UPDATE_IMAGES)
     updateImages();
 
 app.get('/markers', async (req, res) => {
-    let mmarkers = markers.slice(0, 10);
-    res.json(mmarkers);
+  //  let mmarkers2 = markers.slice(0, 10);
+    res.json(markers2);
 })
 
 app.listen(port, () => {

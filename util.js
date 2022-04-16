@@ -35,14 +35,14 @@ function pixel2lat(y, z)
 
 function lng2tilePixel(lng, zoom)
 {
-    let formula = (lng + 180) / 360 * Math.pow(2, zoom);
-    return (formula - Math.floor(formula)) * 512;
+    let formula = (lng * 512 + 180) / 360 * Math.pow(2, zoom);
+    return Math.round(formula) % 512;
 }
 
 function lat2tilePixel(lat, zoom)
 {
     let formula = (1 - Math.log(Math.tan(lat * Math.PI / 180) + 1 / Math.cos(lat * Math.PI / 180)) / Math.PI) / 2 * Math.pow(2, zoom);
-    return (formula - Math.floor(formula)) * 512;
+    return Math.round(formula) % 512;
 }
 
 
