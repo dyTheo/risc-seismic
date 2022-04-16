@@ -91,7 +91,7 @@ function schedule(currentRequestCount)
     {
         console.log("done with updating files");
         totalRequest = markers.length;
-        generatePolygon(0);
+        generateMapsFor(0);
         return;
     }
     let val = tiles[currentRequestCount];
@@ -126,7 +126,42 @@ function schedule(currentRequestCount)
 }
 
 
-function generatePolygon(currentRequestCount)
+function readImages(intArray, x, y, dx, dy, func)
+{
+    let aX = x + dx;
+    let aY = y + dy;
+    let fileName = "files/" + aX + "_" + aY + ".png";
+    let functionn = (function (intArray, dx, dy, func) {
+        return function (err, image) {
+            for (let i = 0; i < image.getWidth(); i++)
+            {
+                if (dx == -1)
+                {
+                    intArray.push([]);
+                }
+                for (let j = 0; j < image.getHeight(); j++)
+                {
+                    intArray[dx + 1].push([image.getPixelColor(j, i)]);
+                }
+            }
+            dx++;
+            if (dx === 2)
+            {
+                dy++;
+                dx = -1;
+            }
+            if (dy === 2)
+            {
+                func(intArray);
+                return;
+            }
+            readImages(intArray, x, y, dx, dy, func);
+        }
+    })(intArray, dx, dy, func);
+    return Jimp.read(fileName, functionn);
+}
+
+function generateMapsFor(currentRequestCount)
 {
     if (currentRequestCount == totalRequest)
     {
@@ -136,21 +171,17 @@ function generatePolygon(currentRequestCount)
     let marker = markers[currentRequestCount];
     let x = lng2tile(marker.lng, baseZ);
     let y = lat2tile(marker.lat, baseZ);
-    let fileName = "files/" + x + "_" + y + ".png";
-    let intArray = new Array
-    Jimp.read(fileName, function (err, image) {
-        for (let x = 0; x < image.getWidth(); x++)
-        {
-            intArray.push([]);
-            for (let y = 0; y < image.getHeight(); y++)
-            {
-                intArray[x].push([image.getPixelColor(x, y)]);
-            }
-        }
-    });
+
+    let functionn = ((c)=>{return (ints)=>calcPolygon(ints, c)})(currentRequestCount);
+    readImages([], x, y, -1, -1, functionn);
+}
+
+function calcPolygon(intArray, currentRequestCount)
+{
     // now perform Lee on that thing... yikes
 
 }
+
 
 // preferably only update the addresses rarely or even manually
 if (UPDATE_COORDS)
