@@ -82,16 +82,16 @@ header * {
 	margin-bottom: 10vh;
 	margin-left: 5vw;
 	float: right;
-	width: 45vw;	
+	width: 40vw;	
 	color: #000;
 }
 
 #info h1 {
-	font-size: 2rem;
+	font-size: 30px;
 }
 
 #info p {
-	font-size: 1.5rem;
+	font-size: 22px;
 }
 
 body::-webkit-scrollbar{
