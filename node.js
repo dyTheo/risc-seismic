@@ -20,11 +20,16 @@ let markers2 = [];
 let UPDATE_COORDS = false;
 let UPDATE_IMAGES = true;
 let UPDATE_POLYGONS = true;
+let APPROXIMATE_POS = true;
 let totalRequest = 0;
 let tiles = [];
 let polygons = [];
 let baseZ = 16;
 let minZ = 11;
+
+
+let dx = [-1, 0, 1, 0];
+let dy = [ 0, 1, 0,-1];
 
 // we need to time our requests for the addresses so we don't flood the server
 function recursiveXHR(currentRequestCount)
@@ -166,15 +171,6 @@ function checkIfToGenerateMaps()
     {
         return;
     }
-    /*fs.access("polygons.json", fs.constants.R_OK, (err) => {
-        // for now we just won't create it anymore
-        if (err) {
-            return;
-        }
-        else {
-            generateMapsFor(0);
-        }
-    });*/
     generateMapsFor(0);
 }
 
@@ -206,13 +202,12 @@ function generateMapsFor(currentRequestCount)
 let mapD = new Map();
 let mapp = new Map();
 const INSIDE_BUILDING = 3654339071;
+const SEARCH_THRESHOLD = 100;
 
 function dfs(startX, startY, intArray, depth)
 {
     mapD.set(startX + " " + startY, depth);
     
-    let dx = [-1, 0, 1, 0];
-    let dy = [ 0, 1, 0,-1];
     for (let k = 0; k < 4; k++)
     {
         newX = startX + dx[k];
@@ -231,14 +226,57 @@ function calcPolygon(intArray, currentRequestCount)
     let tileY = lat2tile(markers[currentRequestCount].lat, baseZ);
     let startX = lng2tilePixel(markers[currentRequestCount].lng, baseZ) + 512;
     let startY = lat2tilePixel(markers[currentRequestCount].lat, baseZ) + 512;
-    let first = 0;
-    let queue = [{x: startX, y: startY}];
     let mapA = new Map();
     if (intArray[startX][startY] == INSIDE_BUILDING)
     {
         mapp.set(startX + " " + startY, 1);
         mapA.set(startX + " " + startY, 0);
     }
+    else if (APPROXIMATE_POS)
+    {
+        let queue = [{x: startX, y: startY}];
+        let visited = 0;
+        let first = 0;
+        let found = false;
+        let mapVis = new Map();
+        while (visited != SEARCH_THRESHOLD)
+        {
+            let elem = queue[first];
+            first++;
+            for (let k = 0; k < 4; k++)
+            {
+                let newX = elem.x + dx[k];
+                let newY = elem.y + dy[k];
+                if (mapVis.has(newX + " " + newY))
+                    continue;
+                mapVis.set(newX + " " + newY, 1);
+                if (intArray[newX] != undefined && intArray[newX][newY] == INSIDE_BUILDING)
+                {
+                    startX = newX;
+                    startY = newY;
+                    found = true;
+                    break;
+                }
+                else
+                {
+                    visited++;
+                    if (intArray[newX] != undefined && intArray[newX][newY] != undefined)
+                    {
+                        queue.push({x: newX, y: newY});
+                    }
+                }
+            }
+            if (found)
+                break;
+        }
+        if (!found)
+        {
+            generateMapsFor(currentRequestCount + 1);
+            return;
+        }
+    }
+    let first = 0;
+    let queue = [{x: startX, y: startY}];
     while (queue.length != first)
     {
         let elem = queue[first];
@@ -246,8 +284,6 @@ function calcPolygon(intArray, currentRequestCount)
         first++;
         if (intArray[elem.x][elem.y] != INSIDE_BUILDING)
             continue;
-        let dx = [-1, 0, 1, 0];
-        let dy = [ 0, 1, 0,-1];
         for (let k = 0; k < 4; k++)
         {
             let newElem = {x: elem.x + dx[k], y: elem.y + dy[k]};
