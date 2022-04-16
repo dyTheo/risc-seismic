@@ -1,7 +1,7 @@
 var map = L.map('map', {drawControl: true}).setView([44.43, 26.08], 11);
 L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-    minZoom: 11
+    minZoom: 0
 }).addTo(map);
 
 let xhr = new XMLHttpRequest();

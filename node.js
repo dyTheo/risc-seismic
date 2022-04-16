@@ -9,7 +9,8 @@ const XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 const axios = require("axios");
 
 
-const {tile2lat, tile2lng, lng2tile, lat2tile} = require("./util.js");
+const {tile2lat, tile2lng, lng2tile, lat2tile, pixel2lat,
+    pixel2lng, lat2tilePixel, lng2tilePixel} = require("./util.js");
 const client = require('https');
 const Jimp = require('jimp');
 
@@ -21,6 +22,7 @@ let totalRequest = 0;
 let tiles = [];
 let polygons = [];
 let baseZ = 16;
+let minZ = 11;
 
 // we need to time our requests for the addresses so we don't flood the server
 function recursiveXHR(currentRequestCount)
@@ -180,6 +182,8 @@ function calcPolygon(intArray, currentRequestCount)
 {
     // now perform Lee on that thing... yikes
     //... how do we figure where we were again?
+    let startX = lng2tilePixel(markers[currentRequestCount].lng);
+    let startY = lat2tilePixel(markers[currentRequestCount].lat);
 }
 
 
