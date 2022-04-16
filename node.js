@@ -2,6 +2,8 @@ const express = require('express')
 const app = express()
 const port = 8080
 
+
+
 app.use(express.static('public'))
 const { parse } = require('csv-parse');
 let fs = require("fs");
@@ -135,9 +137,9 @@ function readImages(intArray, x, y, dx, dy, func)
     let fileName = "files/" + aX + "_" + aY + ".png";
     let functionn = (function (intArray, dx, dy, func) {
         return function (err, image) {
-            for (let i = 0; i < image.getWidth(); i++)
+            for (let i = 0; i < image.getHeight(); i++)
             {
-                for (let j = 0; j < image.getHeight(); j++)
+                for (let j = 0; j < image.getWidth(); j++)
                 {
                     intArray[dx * 512 + 512 + j][dy * 512 + 512 + i] = image.getPixelColor(j, i);
                 }
@@ -182,6 +184,9 @@ function generateMapsFor(currentRequestCount)
     }
     readImages(array, x, y, -1, -1, functionn);
 }
+
+let found = false;
+let mapp = new Map();
 //intArray[512][512], intArray[x][y]
 function calcPolygon(intArray, currentRequestCount)
 {
@@ -191,26 +196,53 @@ function calcPolygon(intArray, currentRequestCount)
     let tileY = lat2tile(markers[currentRequestCount].lat, baseZ);
     let startX = lng2tilePixel(markers[currentRequestCount].lng, baseZ) + 512;
     let startY = lat2tilePixel(markers[currentRequestCount].lat, baseZ) + 512;
-    let array = new Array(512 * 3);
-    for (let i = 0; i < 512 * 3; i++)
-    {
-        array[i] = new Array(512 * 3);
-    }
     let first = 0;
     let queue = [{x: startX, y: startY}];
-    let mapp = new Map();
+    mapp.set(startX + " " + startY, 1);
+    let mapA = new Map();
+    mapA.set(startX + " " + startY, 0);
     while (queue.length != first)
     {
         let elem = queue[first];
+        let elemKey = elem.x + " " + elem.y;
         first++;
         if (intArray[elem.x][elem.y] != 3654339071)
             continue;
-        markers2.push({lng:pixel2lng(elem.x - 512 + tileX * 512, baseZ),
-                       lat:pixel2lat(elem.y - 512 + tileY * 512, baseZ),
-                       val: markers[currentRequestCount].val});
+        let dx = [-1, 0, 1, 0];
+        let dy = [ 0, 1, 0,-1];
+        for (let k = 0; k < 4; k++)
+        {
+            let newElem = {x: elem.x + dx[k], y: elem.y + dy[k]};
+            if (newElem.x < 0 || newElem.x >= 512 * 3
+                || newElem.y < 0 || newElem.y >= 512 * 3)
+                continue;
+            let newElemKey = newElem.x + " " + newElem.y;
+            console.log(intArray[newElem.x][newElem.y]);
+            if (intArray[newElem.x][newElem.y] != 3654339071)
+                continue;
+            if (!mapA.has(newElemKey))
+                mapA.set(newElemKey, 1);
+            else
+                mapA.set(newElemKey, mapA.get(newElemKey) + 1);
+            mapA.set(elemKey, mapA.get(elemKey) + 1);
+            if (mapp.has(newElemKey))
+                continue;
+            queue.push(newElem);
+            mapp.set(newElem.x + " " + newElem.y, 1);
+        }
     }
-    if (currentRequestCount < 30)
-    generateMapsFor(currentRequestCount + 1);
+    mapA.forEach((val, key)=>{
+        if (val > 7) return;
+        let x = parseInt(key.split(" ")[0]);
+        let y = parseInt(key.split(" ")[1]);
+        let points = [];
+        points.push({lng:pixel2lng(x - 512 + tileX * 512, baseZ),
+            lat:pixel2lat(y - 512 + tileY * 512, baseZ),
+            val: markers[currentRequestCount].val});
+        polygons.push(points);
+    });
+    if (currentRequestCount < 50)
+        generateMapsFor(currentRequestCount + 1);
 }
 
 
@@ -238,9 +270,9 @@ if (UPDATE_COORDS)
 else if (UPDATE_IMAGES)
     updateImages();
 
-app.get('/markers', async (req, res) => {
+app.get('/polygons', async (req, res) => {
   //  let mmarkers2 = markers.slice(0, 10);
-    res.json(markers2);
+    res.json(polygons);
 })
 
 app.listen(port, () => {

@@ -5,14 +5,21 @@ L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
 }).addTo(map);
 
 let xhr = new XMLHttpRequest();
-xhr.open('GET', '/markers');
+xhr.open('GET', '/polygons');
 xhr.onreadystatechange = function()
 {
     if (xhr.readyState === 4)
     {
         let myJson = JSON.parse(xhr.responseText);
         myJson.forEach((val)=> {
-            L.marker([val.lat, val.lng]).addTo(map)
+            var latlang = [];
+            val.forEach((v)=> {
+                latlang.push([v.lat, v.lng]);
+            });
+            var polygonOptions = {color:'red'};
+            var polygon = L.polygon(latlang, polygonOptions);
+            polygon.addTo(map);
+     //       L.marker([val.lat, val.lng]).addTo(map)
              //   .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
             //    .openPopup();
         });
