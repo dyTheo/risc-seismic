@@ -2,13 +2,31 @@
 <html>
     <head>
         <title>Risc Seismic</title>
-		<script src="https://d3js.org/d3.v4.min.js"></script>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+        <link rel="stylesheet" href="index.css"/>
+
+		<!-- Leaflet -->
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin="" />
         <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
-        <link rel="stylesheet" href="index.css"/>
     </head>
     <body>
-        <div id="map"/>
-        <script src="index.js"></script>
+		<header>
+			<h1> Risc Seismic </h1>
+			<p> CodeHack2 - Demo </p>
+		</header>
+
+		<div id="wrapper">
+			<div id="map"></div>
+			<div id="info">
+				<h1> Harta interactiva cu cladirile cu risc seismic din Bucuresti </h1>
+				<p> <b> Clasa I = Urgenta 1 – </b> Imobilele incadrate in aceasta clasa prezinta pericol major de prabusire in cazul unui seism cu magnitudinea mai mare de 7 grade pe scara Richter. Aici se incadreaza, de regula, imobilele construite inainte de anul 1977. </p>
+				<p> Nu este absolut necesar ca o cladire incadrata in clasa 1 de risc seismic sa se prabuseasca, dar unele imobile datorita amplasarii, in general in zone aglomerate, avand de multe ori mai mult de 6 etaje, cateodata si spatii comerciale la parter, se considera ca reprezinta pericol public si reconsolidarea lor este obligatorie. </p>
+				<p> <b> Clasa II = Urgenta 2 – </b> Sunt imobile pentru care posibilitatea de prabusire in caz de cutremur este redusa, dar un seism major poate afecta elementele de compartimentare, scarile, etc. fara a pune in pericol structura de rezistenta a imobilului. </p>
+				<p> <b> Clasa III = Urgenta 3 – </b> In aceasta categorie intra cladirile care pot suferi avarii minore in cazul unui seism. Astfel, poate cadea tencuiala, pot aparea fisuri si crapaturi in pereti, fara ca viata locatarilor sa fie pusa in pericol. </p>
+			</div>
+		</div>
     </body>
+
+    <script src="index.js"></script>
 </html>
