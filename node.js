@@ -179,7 +179,7 @@ function generateMapsFor(currentRequestCount)
 function calcPolygon(intArray, currentRequestCount)
 {
     // now perform Lee on that thing... yikes
-
+    //... how do we figure where we were again?
 }
 
 
