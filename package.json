@@ -25,6 +25,7 @@
     "express": "^4.17.3",
     "express-handlebars": "^6.0.5",
     "image-downloader": "^4.2.0",
+    "jimp": "^0.16.1",
     "jsdom": "^19.0.0",
     "node-downloader-helper": "^2.1.1",
     "nodemon": "^2.0.15",
