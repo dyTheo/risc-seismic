@@ -13,16 +13,23 @@ xhr.onreadystatechange = function()
     {
         let myJson = JSON.parse(xhr.responseText);
         myJson.forEach((val)=> {
+            var points = [];
             var latlang = [];
             val.forEach((v)=> {
-                latlang.push([v.lat, v.lng]);
+                points.push({y: v.lat, x: v.lng, val: v.val});
+            });
+            points = L.LineUtil.simplify(points);
+            points.forEach((p)=> {
+                latlang.push([p.y, p.x]);
             });
             var polygonOptions = {color:'red'};
+            console.log(latlang);
             var polygon = L.polygon(latlang, polygonOptions);
             polygon.addTo(map);
-     //       L.marker([val.lat, val.lng]).addTo(map)
-             //   .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
-            //    .openPopup();
+            polygon.bindPopup(`Anul construirii: ${val[0].val["Anul construirii"]}<br/>
+            Clasa de risc seismic:${val[0].val["Clasa de risc seismic"]}<br/>
+            Adresa:${val[0].val["Adresa"]}
+            `);
         });
     }
 }

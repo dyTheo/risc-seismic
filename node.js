@@ -12,7 +12,7 @@ const axios = require("axios");
 
 
 const {tile2lat, tile2lng, lng2tile, lat2tile, pixel2lat,
-    pixel2lng, lat2tilePixel, lng2tilePixel} = require("./util.js");
+    pixel2lng, lat2tilePixel, lng2tilePixel} = require("./public/util.js");
 const client = require('https');
 const Jimp = require('jimp');
 
@@ -21,6 +21,7 @@ let markers = [];
 let markers2 = [];
 let UPDATE_COORDS = false;
 let UPDATE_IMAGES = true;
+let UPDATE_POLYGONS = true;
 let totalRequest = 0;
 let tiles = [];
 let polygons = [];
@@ -96,7 +97,7 @@ function schedule(currentRequestCount)
     {
         console.log("done with updating files");
         totalRequest = markers.length;
-        generateMapsFor(0);
+        checkIfToGenerateMaps();
         return;
     }
     let val = tiles[currentRequestCount];
@@ -161,6 +162,23 @@ function readImages(intArray, x, y, dx, dy, func)
     return Jimp.read(fileName, functionn);
 }
 
+function checkIfToGenerateMaps()
+{
+    if (!UPDATE_POLYGONS)
+    {
+        return;
+    }
+    fs.access("polygons.json", fs.constants.R_OK, (err) => {
+        // for now we just won't create it anymore
+        if (err) {
+            return;
+        }
+        else {
+            generateMapsFor(0);
+        }
+    });
+}
+
 function generateMapsFor(currentRequestCount)
 {
     if (currentRequestCount == 0)
@@ -169,7 +187,8 @@ function generateMapsFor(currentRequestCount)
     }
     if (currentRequestCount == totalRequest)
     {
-        console.log("done with updating polygons");
+        fs.write("polygons.json", JSON.stringify(polygons));
+        console.log("done updating polygons");
         return;
     }
     let marker = markers[currentRequestCount];
@@ -201,6 +220,7 @@ function calcPolygon(intArray, currentRequestCount)
     mapp.set(startX + " " + startY, 1);
     let mapA = new Map();
     mapA.set(startX + " " + startY, 0);
+    let current = 1;
     while (queue.length != first)
     {
         let elem = queue[first];
@@ -228,19 +248,20 @@ function calcPolygon(intArray, currentRequestCount)
             if (mapp.has(newElemKey))
                 continue;
             queue.push(newElem);
-            mapp.set(newElem.x + " " + newElem.y, 1);
+            mapp.set(newElemKey, 1);
         }
     }
+    let points = [];
     mapA.forEach((val, key)=>{
         if (val > 7) return;
         let x = parseInt(key.split(" ")[0]);
         let y = parseInt(key.split(" ")[1]);
-        let points = [];
         points.push({lng:pixel2lng(x - 512 + tileX * 512, baseZ),
-            lat:pixel2lat(y - 512 + tileY * 512, baseZ),
-            val: markers[currentRequestCount].val});
-        polygons.push(points);
+            lat: pixel2lat(y - 512 + tileY * 512, baseZ),
+            val: markers[currentRequestCount].val, ind: mapD.get(key)});
     });
+    points.sort((a, b)=>{return a.ind - b.ind});
+    polygons.push(points);
     if (currentRequestCount < 50)
         generateMapsFor(currentRequestCount + 1);
 }
@@ -271,7 +292,6 @@ else if (UPDATE_IMAGES)
     updateImages();
 
 app.get('/polygons', async (req, res) => {
-  //  let mmarkers2 = markers.slice(0, 10);
     res.json(polygons);
 })
 
