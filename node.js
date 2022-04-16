@@ -2,8 +2,6 @@ const express = require('express')
 const app = express()
 const port = 8080
 
-
-
 app.use(express.static('public'))
 const { parse } = require('csv-parse');
 let fs = require("fs");
@@ -168,7 +166,7 @@ function checkIfToGenerateMaps()
     {
         return;
     }
-    fs.access("polygons.json", fs.constants.R_OK, (err) => {
+    /*fs.access("polygons.json", fs.constants.R_OK, (err) => {
         // for now we just won't create it anymore
         if (err) {
             return;
@@ -176,7 +174,8 @@ function checkIfToGenerateMaps()
         else {
             generateMapsFor(0);
         }
-    });
+    });*/
+    generateMapsFor(0);
 }
 
 function generateMapsFor(currentRequestCount)
@@ -204,8 +203,25 @@ function generateMapsFor(currentRequestCount)
     readImages(array, x, y, -1, -1, functionn);
 }
 
-let found = false;
+let mapD = new Map();
 let mapp = new Map();
+const INSIDE_BUILDING = 3654339071;
+
+function dfs(startX, startY, intArray, depth)
+{
+    mapD.set(startX + " " + startY, depth);
+    
+    let dx = [-1, 0, 1, 0];
+    let dy = [ 0, 1, 0,-1];
+    for (let k = 0; k < 4; k++)
+    {
+        newX = startX + dx[k];
+        newY = startY + dy[k];
+        if (!mapD.has(newX + " " + newY) && intArray[newX] != undefined &&intArray[newX][newY] == INSIDE_BUILDING)
+            dfs(newX, newY, intArray, depth + 1);
+    }
+}
+
 //intArray[512][512], intArray[x][y]
 function calcPolygon(intArray, currentRequestCount)
 {
@@ -217,16 +233,18 @@ function calcPolygon(intArray, currentRequestCount)
     let startY = lat2tilePixel(markers[currentRequestCount].lat, baseZ) + 512;
     let first = 0;
     let queue = [{x: startX, y: startY}];
-    mapp.set(startX + " " + startY, 1);
     let mapA = new Map();
-    mapA.set(startX + " " + startY, 0);
-    let current = 1;
+    if (intArray[startX][startY] == INSIDE_BUILDING)
+    {
+        mapp.set(startX + " " + startY, 1);
+        mapA.set(startX + " " + startY, 0);
+    }
     while (queue.length != first)
     {
         let elem = queue[first];
         let elemKey = elem.x + " " + elem.y;
         first++;
-        if (intArray[elem.x][elem.y] != 3654339071)
+        if (intArray[elem.x][elem.y] != INSIDE_BUILDING)
             continue;
         let dx = [-1, 0, 1, 0];
         let dy = [ 0, 1, 0,-1];
@@ -237,8 +255,7 @@ function calcPolygon(intArray, currentRequestCount)
                 || newElem.y < 0 || newElem.y >= 512 * 3)
                 continue;
             let newElemKey = newElem.x + " " + newElem.y;
-            console.log(intArray[newElem.x][newElem.y]);
-            if (intArray[newElem.x][newElem.y] != 3654339071)
+            if (intArray[newElem.x][newElem.y] != INSIDE_BUILDING)
                 continue;
             if (!mapA.has(newElemKey))
                 mapA.set(newElemKey, 1);
@@ -251,6 +268,8 @@ function calcPolygon(intArray, currentRequestCount)
             mapp.set(newElemKey, 1);
         }
     }
+    if (intArray[startX][startY] == INSIDE_BUILDING)
+        dfs(startX, startY, intArray, 0);
     let points = [];
     mapA.forEach((val, key)=>{
         if (val > 7) return;
@@ -261,9 +280,9 @@ function calcPolygon(intArray, currentRequestCount)
             val: markers[currentRequestCount].val, ind: mapD.get(key)});
     });
     points.sort((a, b)=>{return a.ind - b.ind});
-    polygons.push(points);
-    if (currentRequestCount < 50)
-        generateMapsFor(currentRequestCount + 1);
+    if (points.length != 0)
+        polygons.push(points);
+    generateMapsFor(currentRequestCount + 1);
 }
 
 

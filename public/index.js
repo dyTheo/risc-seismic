@@ -22,7 +22,11 @@ xhr.onreadystatechange = function()
             points.forEach((p)=> {
                 latlang.push([p.y, p.x]);
             });
-            var polygonOptions = {color:'red'};
+            var polygonOptions = {color:'white'};
+            if (val[0].val["Clasa de risc seismic"].startsWith("2"))
+                polygonOptions = {color:'yellow'};
+            if (val[0].val["Clasa de risc seismic"].startsWith("1"))
+                polygonOptions = {color:'red'};
             console.log(latlang);
             var polygon = L.polygon(latlang, polygonOptions);
             polygon.addTo(map);
